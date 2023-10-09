@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   getData() async {
-    ordersData = await RemoveService().getOrders('/findall');
+    ordersData = await RemoveService().getOrders('orders/findall');
     //debugPrint(ordersData);
     if (ordersData != null) {
       setState(() {
