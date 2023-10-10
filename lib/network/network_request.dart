@@ -7,7 +7,7 @@ import '../model/img.dart';
 
 class RemoveService {
   var client = http.Client();
-  static const String Baseurl = 'http://192.168.1.11:3000/';
+  static const String Baseurl = 'http://192.168.1.9:3000/';
 //get
   Future<List<Orders>?> getOrders(String api) async {
     var uri = Uri.parse(Baseurl + api);
@@ -21,7 +21,10 @@ class RemoveService {
   Future<dynamic> post(String api, dynamic object) async {
     var url = Uri.parse(Baseurl + api);
     var payload = jsonEncode(object);
-    var response = await client.post(url, body: payload);
+    print(payload);
+    var response = await client.post(url, headers: {
+      'Content-Type': 'application/json',
+    }, body: payload);
     if (response.statusCode == 201) {
       return response.body;
     } else {

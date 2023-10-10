@@ -15,10 +15,10 @@ class Orders {
   String shipper;
   String phone;
   String siteId;
-  String createBy;
-  DateTime createDate;
-  String updateBy;
-  DateTime updateDate;
+  String? createBy;
+  DateTime? createDate;
+  String? updateBy;
+  DateTime? updateDate;
 
   Orders({
     required this.rowPointer,
@@ -29,8 +29,8 @@ class Orders {
     required this.siteId,
     required this.createBy,
     required this.createDate,
-    required this.updateBy,
-    required this.updateDate,
+     this.updateBy,
+     this.updateDate,
   });
 
   factory Orders.fromJson(Map<String, dynamic> json) => Orders(
@@ -54,9 +54,9 @@ class Orders {
     "phone": phone,
     "siteId": siteId,
     "createBy": createBy,
-    "createDate": createDate.toIso8601String(),
+    "createDate": createDate.toString(),
     "updateBy": updateBy,
-    "updateDate": updateDate.toIso8601String(),
+    "updateDate": updateDate.toString(),
   };
 }
 

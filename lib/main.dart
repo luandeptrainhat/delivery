@@ -51,10 +51,16 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Orders>? ordersData;
   File? _image;
   File? _image2;
-  var uuid = Uuid();
-
+  var uuid = const Uuid();
 
   var isLoad = false;
+
+
+  bool _isShowingImageList = false;
+  List<File> _capturedImages = [];
+
+  bool _isShowingImageList2 = false;
+  List<File> _capturedImages2 = [];
 
   @override
   void initState() {
@@ -72,6 +78,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _viewImage(File imageFile) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.file(imageFile),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,8 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
         replacement: const Center(
           child: CircularProgressIndicator(),
         ),
-
         child: ListView.builder(
+          shrinkWrap: true,
           padding: const EdgeInsets.all(8),
           itemCount: ordersData?.length,
           // Set itemCount to 1 since there's only one item
@@ -96,9 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
             final phone = ordersData?[index].phone;
             final siteId = ordersData?[index].siteId;
             return Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               margin: const EdgeInsets.all(10.0),
-
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.black,
@@ -110,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.grey.withOpacity(0.1),
                     spreadRadius: 1,
                     blurRadius: 1,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -245,92 +264,150 @@ class _MyHomePageState extends State<MyHomePage> {
                               children: [
                                 TextButton.icon(
                                   onPressed: () {
-                                    getImage(
-                                        source: ImageSource
-                                            .camera); // Thay đổi ở đây
+                                    getImage(source: ImageSource.camera);
                                   },
                                   label: const Text(
                                     'Check in',
                                     style: TextStyle(color: Colors.black),
                                   ),
                                   icon: const Icon(
-                                    Icons.camera,
+                                    Icons.camera_alt,
                                     size: 20,
                                   ),
                                 ),
-                                if (_image != null)
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: FileImage(_image!),
+                                if (_capturedImages.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _isShowingImageList =
+                                            !_isShowingImageList;
+                                          });
+                                        },
+                                        child: Text(
+                                          'Số ảnh đã chụp: ${_capturedImages
+                                              .length}',
+                                          style: const TextStyle(
+                                              color: Colors.black),
+                                        ),
                                       ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                        width: 1.0,
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _isShowingImageList =
+                                            !_isShowingImageList;
+                                          });
+                                        },
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_down),
                                       ),
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Tùy chọn: bo tròn các góc của đường viền
+                                    ],
+                                  ),
+                                if (_isShowingImageList)
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 8.0,
+                                      crossAxisSpacing: 8.0,
                                     ),
-                                    child: TextFormField(),
-                                  )
-                                else
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.black,
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Tùy chọn: bo tròn các góc của đường viền
-                                    ),
-                                    child: TextFormField(),
-                                  )
+                                    itemCount: _capturedImages.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          // Handle tap event to view the image in full size
+                                          _viewImage(_capturedImages[index]);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: FileImage(
+                                                  _capturedImages[index]),
+                                              fit: BoxFit.cover,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                                8.0),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                             Column(
                               children: [
                                 TextButton.icon(
                                   onPressed: () {
-                                    getImage2(
-                                        source: ImageSource
-                                            .camera); // Thay đổi ở đây
+                                    getImage2(source: ImageSource.camera);
                                   },
                                   label: const Text(
                                     'Check out',
                                     style: TextStyle(color: Colors.black),
                                   ),
                                   icon: const Icon(
-                                    Icons.camera,
+                                    Icons.camera_alt,
                                     size: 20,
                                   ),
                                 ),
-                                if (_image2 != null)
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: FileImage(_image2!),
+                                if (_capturedImages2.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _isShowingImageList2 =
+                                            !_isShowingImageList2;
+                                          });
+                                        },
+                                        child: Text(
+                                          'Số ảnh đã chụp: ${_capturedImages2
+                                              .length}',
+                                          style: const TextStyle(
+                                              color: Colors.black),
+                                        ),
                                       ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                        width: 1.0,
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _isShowingImageList2 =
+                                            !_isShowingImageList2;
+                                          });
+                                        },
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_down),
                                       ),
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Tùy chọn: bo tròn các góc của đường viền
+                                    ],
+                                  ),
+                                if (_isShowingImageList2)
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 8.0,
+                                      crossAxisSpacing: 8.0,
                                     ),
-                                    child: TextFormField(),
-                                  )
-                                else
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.black,
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Tùy chọn: bo tròn các góc của đường viền
-                                    ),
-                                    child: TextFormField(),
-                                  )
+                                    itemCount: _capturedImages2.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          // Handle tap event to view the image in full size
+                                          _viewImage(_capturedImages2[index]);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: FileImage(
+                                                  _capturedImages2[index]),
+                                              fit: BoxFit.cover,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                                8.0),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ],
@@ -345,13 +422,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-
         onPressed: () async {
-
           var v1 = uuid.v4();
           DateTime currentDate = DateTime.now();
-          // String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
-
+          //String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
+          // print(v1);
           var od = Orders(
               rowPointer: v1,
               ginNum: 'GIN004',
@@ -363,10 +438,10 @@ class _MyHomePageState extends State<MyHomePage> {
               createDate: currentDate,
               updateBy: 'luan',
               updateDate: currentDate);
-          var response = await RemoveService().post('/create',od);
+          var response = await RemoveService().post('orders/create', od);
           print(v1);
           if (response == null) return;
-        //  debugPrint('thêm thành công $uuid');
+          //  debugPrint('thêm thành công $uuid');
         },
         child: const Icon(Icons.add),
       ),
@@ -375,20 +450,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void getImage({required ImageSource source}) async {
     final file = await ImagePicker().pickImage(source: source);
-
     if (file?.path != null) {
       setState(() {
-        _image = File(file!.path);
+        _capturedImages.add(File(file!.path)); // Thêm ảnh vào danh sách
+        _isShowingImageList = true; // Hiển thị danh sách ảnh
       });
     }
   }
 
   void getImage2({required ImageSource source}) async {
     final file = await ImagePicker().pickImage(source: source);
-
     if (file?.path != null) {
       setState(() {
-        _image2 = File(file!.path);
+        _capturedImages2.add(File(file!.path)); // Thêm ảnh vào danh sách
+        _isShowingImageList2 = true; // Hiển thị danh sách ảnh
       });
     }
   }
