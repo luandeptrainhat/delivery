@@ -3,47 +3,62 @@
 //     final img = imgFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
+import 'dart:ui';
+
+import 'img.dart';
+
 
 List<Img> imgFromJson(String str) => List<Img>.from(json.decode(str).map((x) => Img.fromJson(x)));
 
 String imgToJson(List<Img> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Img {
-  String rowPointer;
-  String ginNum;
-  String url;
-  String createBy;
-  DateTime createDate;
-  dynamic updateBy;
-  dynamic updateDate;
+  final String? rowPointer;
+  final String? ginNum;
+  final String? fileName;
+  File imageData;
+  String? createBy;
+  DateTime? createDate;
+  dynamic? updateBy;
+  DateTime? updateDate;
 
   Img({
     required this.rowPointer,
     required this.ginNum,
-    required this.url,
-    required this.createBy,
-    required this.createDate,
-    required this.updateBy,
-    required this.updateDate,
+    required this.fileName,
+    required this.imageData, // Add imageData parameter
+    this.createBy,
+    this.createDate,
+    this.updateBy,
+    this.updateDate,
   });
 
   factory Img.fromJson(Map<String, dynamic> json) => Img(
-    rowPointer: json["rowPointer"],
-    ginNum: json["ginNum"],
-    url: json["url"],
+    rowPointer: json["rowPointer"]as String,
+    ginNum: json["ginNum"]as String,
+    fileName: json["fileName"]as String,
+    imageData: json["imageData"] , // Add imageData parameter
     createBy: json["createBy"],
     createDate: DateTime.parse(json["createDate"]),
     updateBy: json["updateBy"],
-    updateDate: json["updateDate"],
+    updateDate: DateTime.parse(json["updateDate"]),
   );
 
   Map<String, dynamic> toJson() => {
     "rowPointer": rowPointer,
     "ginNum": ginNum,
-    "url": url,
+    "fileName": fileName,
+    "imageData": imageData, // Add imageData parameter
     "createBy": createBy,
-    "createDate": createDate.toIso8601String(),
+    "createDate": createDate,
     "updateBy": updateBy,
     "updateDate": updateDate,
   };
+
+
+
+
 }

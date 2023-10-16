@@ -1,15 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:delivery/model/img.dart';
 import 'package:delivery/model/orders.dart';
 import 'package:delivery/network/network_request.dart';
+import 'package:delivery/textScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:delivery/detail.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
-// import 'package:intl/intl.dart';
-import 'package:uuid/data.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/rng.dart';
-
+import 'package:dio/dio.dart';
+// import 'dart:html';
+import 'package:http/http.dart' as http;
 void main() {
   runApp(const MyApp());
 }
@@ -49,6 +51,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Orders>? ordersData;
+  List<Img>? imgDataCheckIn;
   File? _image;
   File? _image2;
   var uuid = const Uuid();
@@ -62,12 +65,26 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isShowingImageList2 = false;
   List<File> _capturedImages2 = [];
 
+
+
   @override
   void initState() {
     super.initState();
     getData();
+    getPicture('GIN005');
+
   }
 
+
+  getPicture(String ginNum) async {
+    imgDataCheckIn = await RemoveService().getImgListByGinNum('image/find/',ginNum);
+    // debugPrint(' check mảng lấy được $imgDataCheckIn');
+    if (imgDataCheckIn != null) {
+      setState(() {
+        isLoad = true;
+      });
+    }
+  }
   getData() async {
     ordersData = await RemoveService().getOrders('orders/findall');
     //debugPrint(ordersData);
@@ -77,6 +94,18 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
+
+  Future<void> postImage(File image) async {
+    var v1 = Uuid().v4();
+    String filePath = image.path;
+    String fileName = filePath.split('/').last.split('-').last.split('.').first;
+
+    var removeService = RemoveService();
+    await removeService.postImage('image/upload',v1, 'GIN009', filePath);
+  }
+
+
 
   void _viewImage(File imageFile) {
     showDialog(
@@ -263,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             Column(
                               children: [
                                 TextButton.icon(
-                                  onPressed: () {
+                                  onPressed: ()  {
                                     getImage(source: ImageSource.camera);
                                   },
                                   label: const Text(
@@ -283,7 +312,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           setState(() {
                                             _isShowingImageList =
                                             !_isShowingImageList;
+
                                           });
+
                                         },
                                         child: Text(
                                           'Số ảnh đã chụp: ${_capturedImages
@@ -422,26 +453,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var v1 = uuid.v4();
-          DateTime currentDate = DateTime.now();
-          //String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
-          // print(v1);
-          var od = Orders(
-              rowPointer: v1,
-              ginNum: 'GIN004',
-              address: 'Q12, HCM',
-              shipper: 'Luaan',
-              phone: '0123456789',
-              siteId: 'Site4',
-              createBy: 'Luaanaa',
-              createDate: currentDate,
-              updateBy: 'luan',
-              updateDate: currentDate);
-          var response = await RemoveService().post('orders/create', od);
-          print(v1);
-          if (response == null) return;
-          //  debugPrint('thêm thành công $uuid');
+        onPressed: ()  {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Test()),
+          );
         },
         child: const Icon(Icons.add),
       ),
@@ -452,8 +468,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final file = await ImagePicker().pickImage(source: source);
     if (file?.path != null) {
       setState(() {
-        _capturedImages.add(File(file!.path)); // Thêm ảnh vào danh sách
+        _capturedImages.add(File(file!.path));
+        // postImage(File(file!.path));// Thêm ảnh vào danh sách
         _isShowingImageList = true; // Hiển thị danh sách ảnh
+        _image = File(file.path);
+        postImage(_image!);
       });
     }
   }
@@ -464,6 +483,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _capturedImages2.add(File(file!.path)); // Thêm ảnh vào danh sách
         _isShowingImageList2 = true; // Hiển thị danh sách ảnh
+        postImage(_image2!);
       });
     }
   }
