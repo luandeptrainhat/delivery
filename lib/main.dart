@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:delivery/model/img.dart';
 import 'package:delivery/model/orders.dart';
@@ -6,12 +5,10 @@ import 'package:delivery/network/network_request.dart';
 import 'package:delivery/textScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:delivery/detail.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-import 'package:dio/dio.dart';
-// import 'dart:html';
-import 'package:http/http.dart' as http;
+
+
 void main() {
   runApp(const MyApp());
 }
@@ -51,13 +48,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Orders>? ordersData;
-  List<Img>? imgDataCheckIn;
+  List<Img> imgDataCheckIn = [];
   File? _image;
   File? _image2;
   var uuid = const Uuid();
 
   var isLoad = false;
-
 
   bool _isShowingImageList = false;
   List<File> _capturedImages = [];
@@ -65,26 +61,42 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isShowingImageList2 = false;
   List<File> _capturedImages2 = [];
 
+  late String ginNum = 'GIN009';
+  bool _isLoading = true;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading) {
+      getPicture(ginNum);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     getData();
-    getPicture('GIN005');
 
   }
 
-
-  getPicture(String ginNum) async {
-    imgDataCheckIn = await RemoveService().getImgListByGinNum('image/find/',ginNum);
-    // debugPrint(' check mảng lấy được $imgDataCheckIn');
-    if (imgDataCheckIn != null) {
-      setState(() {
-        isLoad = true;
-      });
+  void getPicture(String ginNum) async {
+    try {
+      final myRemoveService = RemoveService();
+      final imgList =
+          await myRemoveService.getImgListByGinNum('image/find/', ginNum);
+      print('Is it null? $imgList');
+      if (imgList != null) {
+        setState(() {
+          imgDataCheckIn.addAll(imgList);
+        });
+      } else {
+        // Xử lý khi không có hình ảnh
+      }
+    } catch (e) {
+      // Xử lý khi xảy ra lỗi trong quá trình lấy hình ảnh
     }
   }
+
   getData() async {
     ordersData = await RemoveService().getOrders('orders/findall');
     //debugPrint(ordersData);
@@ -95,17 +107,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-
   Future<void> postImage(File image) async {
-    var v1 = Uuid().v4();
+    var v1 = const Uuid().v4();
     String filePath = image.path;
     String fileName = filePath.split('/').last.split('-').last.split('.').first;
 
     var removeService = RemoveService();
-    await removeService.postImage('image/upload',v1, 'GIN009', filePath);
+    await removeService.postImage('image/upload', v1, 'GIN005', filePath);
   }
-
-
 
   void _viewImage(File imageFile) {
     showDialog(
@@ -139,11 +148,12 @@ class _MyHomePageState extends State<MyHomePage> {
           // Set itemCount to 1 since there's only one item
           itemBuilder: (BuildContext context, int index) {
             final rowpointer = ordersData?[index].rowPointer;
-            final ginNum = ordersData?[index].ginNum;
+            ginNum = ordersData![index].ginNum;
             final address = ordersData?[index].address;
             final shipper = ordersData?[index].shipper;
             final phone = ordersData?[index].phone;
             final siteId = ordersData?[index].siteId;
+
             return Container(
               padding: const EdgeInsets.all(10),
               margin: const EdgeInsets.all(10.0),
@@ -292,11 +302,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             Column(
                               children: [
                                 TextButton.icon(
-                                  onPressed: ()  {
-                                    getImage(source: ImageSource.camera);
+                                  onPressed: () {
+                                    getImage2(source: ImageSource.camera);
                                   },
                                   label: const Text(
-                                    'Check in',
+                                    'Check out',
                                     style: TextStyle(color: Colors.black),
                                   ),
                                   icon: const Icon(
@@ -304,66 +314,64 @@ class _MyHomePageState extends State<MyHomePage> {
                                     size: 20,
                                   ),
                                 ),
-                                if (_capturedImages.isNotEmpty)
-                                  Row(
-                                    children: [
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _isShowingImageList =
-                                            !_isShowingImageList;
 
-                                          });
-
-                                        },
-                                        child: Text(
-                                          'Số ảnh đã chụp: ${_capturedImages
-                                              .length}',
-                                          style: const TextStyle(
-                                              color: Colors.black),
-                                        ),
+                                Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isShowingImageList2 =
+                                          !_isShowingImageList2;
+                                        });
+                                      },
+                                      child: Text(
+                                        'Số ảnh đã chụp: ${imgDataCheckIn.length}',
+                                        style: const TextStyle(
+                                            color: Colors.black),
                                       ),
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _isShowingImageList =
-                                            !_isShowingImageList;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                            Icons.keyboard_arrow_down),
-                                      ),
-                                    ],
-                                  ),
-                                if (_isShowingImageList)
-                                  GridView.builder(
-                                    shrinkWrap: true,
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 8.0,
-                                      crossAxisSpacing: 8.0,
                                     ),
-                                    itemCount: _capturedImages.length,
-                                    itemBuilder: (context, index) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          // Handle tap event to view the image in full size
-                                          _viewImage(_capturedImages[index]);
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: FileImage(
-                                                  _capturedImages[index]),
-                                              fit: BoxFit.cover,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                                8.0),
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isShowingImageList =
+                                          !_isShowingImageList;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                          Icons.keyboard_arrow_down),
+                                    ),
+                                  ],
+                                ),
+                                if(_isShowingImageList)
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    mainAxisSpacing: 8.0,
+                                    crossAxisSpacing: 8.0,
                                   ),
+                                  itemCount: imgDataCheckIn.length,
+                                  itemBuilder: (context, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        // Handle tap event to view the image in full size
+                                        _viewImage(imgDataCheckIn[index].imageData);
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: FileImage(File(
+                                              imgDataCheckIn[index].imageData.path,
+                                            )),
+                                            fit: BoxFit.cover,
+                                          ),
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                             Column(
@@ -381,19 +389,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                     size: 20,
                                   ),
                                 ),
-                                if (_capturedImages2.isNotEmpty)
+
                                   Row(
                                     children: [
                                       TextButton(
                                         onPressed: () {
                                           setState(() {
                                             _isShowingImageList2 =
-                                            !_isShowingImageList2;
+                                                !_isShowingImageList2;
                                           });
                                         },
                                         child: Text(
-                                          'Số ảnh đã chụp: ${_capturedImages2
-                                              .length}',
+                                          'Số ảnh đã chụp: ${imgDataCheckIn.length}',
                                           style: const TextStyle(
                                               color: Colors.black),
                                         ),
@@ -402,7 +409,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         onPressed: () {
                                           setState(() {
                                             _isShowingImageList2 =
-                                            !_isShowingImageList2;
+                                                !_isShowingImageList2;
                                           });
                                         },
                                         icon: const Icon(
@@ -410,30 +417,31 @@ class _MyHomePageState extends State<MyHomePage> {
                                       ),
                                     ],
                                   ),
-                                if (_isShowingImageList2)
+                                if(_isShowingImageList2)
                                   GridView.builder(
                                     shrinkWrap: true,
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 3,
                                       mainAxisSpacing: 8.0,
                                       crossAxisSpacing: 8.0,
                                     ),
-                                    itemCount: _capturedImages2.length,
+                                    itemCount: imgDataCheckIn.length,
                                     itemBuilder: (context, index) {
                                       return GestureDetector(
                                         onTap: () {
                                           // Handle tap event to view the image in full size
-                                          _viewImage(_capturedImages2[index]);
+                                          _viewImage(imgDataCheckIn[index].imageData);
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
-                                              image: FileImage(
-                                                  _capturedImages2[index]),
+                                              image: FileImage(File(
+                                                imgDataCheckIn[index].imageData.path,
+                                              )),
                                               fit: BoxFit.cover,
                                             ),
-                                            borderRadius: BorderRadius.circular(
-                                                8.0),
+                                            borderRadius: BorderRadius.circular(8.0),
                                           ),
                                         ),
                                       );
@@ -453,7 +461,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: ()  {
+        onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const Test()),
@@ -469,7 +477,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (file?.path != null) {
       setState(() {
         _capturedImages.add(File(file!.path));
-        // postImage(File(file!.path));// Thêm ảnh vào danh sách
+
         _isShowingImageList = true; // Hiển thị danh sách ảnh
         _image = File(file.path);
         postImage(_image!);

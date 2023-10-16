@@ -14,11 +14,17 @@ class Test extends StatefulWidget {
 
 class _TestState extends State<Test> {
   List<Img> imgDataCheckIn = []; // Initialize with an empty list
-
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
-    getPicture('GIN005');
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading) {
+      getPicture('GIN005');
+    }
   }
 
   void getPicture(String ginNum) async {
@@ -29,7 +35,6 @@ class _TestState extends State<Test> {
       if (imgList != null) {
         setState(() {
           imgDataCheckIn.addAll(imgList);
-          print('độ dài$imgDataCheckIn.length');
         });
       } else {
         // Xử lý khi không có hình ảnh
@@ -55,7 +60,7 @@ class _TestState extends State<Test> {
           ),
           body: Container(
             margin: const EdgeInsets.all(10),
-            child: ListView.builder(
+            child: GridView.builder(
               itemCount: imgDataCheckIn.length,
               itemBuilder: (context, index) {
                 final img = imgDataCheckIn[index];
@@ -70,9 +75,13 @@ class _TestState extends State<Test> {
                     borderRadius: BorderRadius.circular(
                         8.0),
                   ),
-                  child: Text( imgDataCheckIn[index].ginNum?? 'tôi đây')
+                  child: Text( imgDataCheckIn[index].ginNum?? '')
                 );
-              },
+              },   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 8.0,
+              crossAxisSpacing: 8.0,
+            ),
             ),
           ),
         ),

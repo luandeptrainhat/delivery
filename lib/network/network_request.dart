@@ -136,31 +136,33 @@ class RemoveService {
   Future<List<Img>> getImgListByGinNum(String api, String ginNum) async {
     final url = Baseurl + api + ginNum;
 
-    final response = await client.get(Uri.parse(url));
-    print(2);
+    final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      Uint8List imageData = response.bodyBytes;
-      List<Img> imgDataCheckIn = [];
-      final base64ImageData = base64Encode(imageData);
-      Uint8List data = base64.decode(base64ImageData);
-      dynamic json = jsonEncode(response.bodyBytes.toList());
-      print(3);
-      final file = File.fromRawPath(response.bodyBytes);
-      print(4);
-      // print(file);
+      final imageDataList = response.bodyBytes;
+      final imgDataCheckIn = <Img>[];
+
+      final tempFile = await _createLocalImageFile(imageDataList);
 
       final img2 = Img(
-        imageData: file,
-        rowPointer: '',
-        ginNum: '',
-        fileName: '',
+        imageData: tempFile,
+        rowPointer: 'AC8BB3A2-DF62-48C0-8B3F-B3448466FB87',
+        ginNum: 'GIN005',
+        fileName: 'cd1ecafa762f5796597f073171f109e0',
       );
       imgDataCheckIn.add(img2);
-
 
       return imgDataCheckIn;
     } else {
       throw Exception('Failed to load image');
     }
   }
+
+  Future<File> _createLocalImageFile(List<int> imageData) async {
+    final tempDir = await Directory.systemTemp.createTemp();
+    final tempPath = tempDir.path;
+    final tempFile = File('$tempPath/temp_image.png');
+    await tempFile.writeAsBytes(imageData);
+    return tempFile;
+  }
 }
+
