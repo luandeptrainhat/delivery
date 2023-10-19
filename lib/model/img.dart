@@ -20,6 +20,7 @@ class Img {
   final String? ginNum;
   final String? fileName;
   File imageData;
+  String? type;
   String? createBy;
   DateTime? createDate;
   dynamic? updateBy;
@@ -29,7 +30,8 @@ class Img {
     required this.rowPointer,
     required this.ginNum,
     required this.fileName,
-    required this.imageData, // Add imageData parameter
+    required this.imageData,
+    required this.type,// Add imageData parameter
     this.createBy,
     this.createDate,
     this.updateBy,
@@ -41,6 +43,7 @@ class Img {
     ginNum: json["ginNum"]as String,
     fileName: json["fileName"]as String,
     imageData: json["imageData"] , // Add imageData parameter
+    type: json['type'],
     createBy: json["createBy"],
     createDate: DateTime.parse(json["createDate"]),
     updateBy: json["updateBy"],
@@ -52,6 +55,7 @@ class Img {
     "ginNum": ginNum,
     "fileName": fileName,
     "imageData": imageData, // Add imageData parameter
+    "type": type,
     "createBy": createBy,
     "createDate": createDate,
     "updateBy": updateBy,

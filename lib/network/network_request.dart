@@ -1,19 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'package:delivery/model/orders.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../model/img.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/services.dart';
+
 class RemoveService {
   var client = http.Client();
-  static const String Baseurl = 'http://192.168.1.10:3000/';
+  static const String Baseurl = 'http://192.168.1.8:3000/';
 
 //get
   Future<List<Orders>?> getOrders(String api) async {
@@ -148,6 +143,7 @@ class RemoveService {
         rowPointer: 'AC8BB3A2-DF62-48C0-8B3F-B3448466FB87',
         ginNum: 'GIN005',
         fileName: 'cd1ecafa762f5796597f073171f109e0',
+        type: ''
       );
       imgDataCheckIn.add(img2);
 

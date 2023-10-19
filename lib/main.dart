@@ -2,12 +2,11 @@ import 'dart:io';
 import 'package:delivery/model/img.dart';
 import 'package:delivery/model/orders.dart';
 import 'package:delivery/network/network_request.dart';
-import 'package:delivery/textScreen.dart';
+import 'package:delivery/page/detail.dart';
+import 'package:delivery/page/textScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:delivery/detail.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -76,7 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     getData();
-
   }
 
   void getPicture(String ginNum) async {
@@ -314,14 +312,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                     size: 20,
                                   ),
                                 ),
-
                                 Row(
                                   children: [
                                     TextButton(
                                       onPressed: () {
                                         setState(() {
                                           _isShowingImageList2 =
-                                          !_isShowingImageList2;
+                                              !_isShowingImageList2;
                                         });
                                       },
                                       child: Text(
@@ -334,44 +331,48 @@ class _MyHomePageState extends State<MyHomePage> {
                                       onPressed: () {
                                         setState(() {
                                           _isShowingImageList =
-                                          !_isShowingImageList;
+                                              !_isShowingImageList;
                                         });
                                       },
-                                      icon: const Icon(
-                                          Icons.keyboard_arrow_down),
+                                      icon:
+                                          const Icon(Icons.keyboard_arrow_down),
                                     ),
                                   ],
                                 ),
-                                if(_isShowingImageList)
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    mainAxisSpacing: 8.0,
-                                    crossAxisSpacing: 8.0,
-                                  ),
-                                  itemCount: imgDataCheckIn.length,
-                                  itemBuilder: (context, index) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        // Handle tap event to view the image in full size
-                                        _viewImage(imgDataCheckIn[index].imageData);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: FileImage(File(
-                                              imgDataCheckIn[index].imageData.path,
-                                            )),
-                                            fit: BoxFit.cover,
+                                if (_isShowingImageList)
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 8.0,
+                                      crossAxisSpacing: 8.0,
+                                    ),
+                                    itemCount: imgDataCheckIn.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          // Handle tap event to view the image in full size
+                                          _viewImage(
+                                              imgDataCheckIn[index].imageData);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: FileImage(File(
+                                                imgDataCheckIn[index]
+                                                    .imageData
+                                                    .path,
+                                              )),
+                                              fit: BoxFit.cover,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
                                           ),
-                                          borderRadius: BorderRadius.circular(8.0),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                             Column(
@@ -389,35 +390,34 @@ class _MyHomePageState extends State<MyHomePage> {
                                     size: 20,
                                   ),
                                 ),
-
-                                  Row(
-                                    children: [
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _isShowingImageList2 =
-                                                !_isShowingImageList2;
-                                          });
-                                        },
-                                        child: Text(
-                                          'Số ảnh đã chụp: ${imgDataCheckIn.length}',
-                                          style: const TextStyle(
-                                              color: Colors.black),
-                                        ),
+                                Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isShowingImageList2 =
+                                              !_isShowingImageList2;
+                                        });
+                                      },
+                                      child: Text(
+                                        'Số ảnh đã chụp: ${imgDataCheckIn.length}',
+                                        style: const TextStyle(
+                                            color: Colors.black),
                                       ),
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _isShowingImageList2 =
-                                                !_isShowingImageList2;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                            Icons.keyboard_arrow_down),
-                                      ),
-                                    ],
-                                  ),
-                                if(_isShowingImageList2)
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isShowingImageList2 =
+                                              !_isShowingImageList2;
+                                        });
+                                      },
+                                      icon:
+                                          const Icon(Icons.keyboard_arrow_down),
+                                    ),
+                                  ],
+                                ),
+                                if (_isShowingImageList2)
                                   GridView.builder(
                                     shrinkWrap: true,
                                     gridDelegate:
@@ -431,17 +431,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                       return GestureDetector(
                                         onTap: () {
                                           // Handle tap event to view the image in full size
-                                          _viewImage(imgDataCheckIn[index].imageData);
+                                          _viewImage(
+                                              imgDataCheckIn[index].imageData);
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
                                               image: FileImage(File(
-                                                imgDataCheckIn[index].imageData.path,
+                                                imgDataCheckIn[index]
+                                                    .imageData
+                                                    .path,
                                               )),
                                               fit: BoxFit.cover,
                                             ),
-                                            borderRadius: BorderRadius.circular(8.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
                                           ),
                                         ),
                                       );
@@ -495,4 +499,10 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
+  void setT(){
+
+  }
 }
+
+
